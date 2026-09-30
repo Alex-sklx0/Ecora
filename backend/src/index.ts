@@ -1,0 +1,56 @@
+import 'dotenv/config'
+import express from 'express'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import { toNodeHandler } from 'better-auth/node'
+import { auth } from './config/auth'
+import { env } from './config/env'
+import { errorHandler } from './middlewares/errorHandler'
+
+import usuariosRouter from './routes/usuarios.routes'
+import empresasRouter from './routes/empresas.routes'
+import personasRouter from './routes/personas.routes'
+import subproductosRouter from './routes/subproductos.routes'
+import catalogoRouter from './routes/catalogo.routes'
+import stripeRouter from './routes/stripe.routes'
+import intercambiosRouter from './routes/intercambios.routes'
+
+const app = express()
+
+app.use(
+  cors({
+    origin: env.FRONTEND_URL,
+    credentials: true,
+  })
+)
+
+app.use(cookieParser())
+
+// Better-Auth endpoints (/api/auth/*)
+app.all('/api/auth/*', toNodeHandler(auth))
+
+// Stripe webhook requiere raw body (se procesa antes de json middleware para el webhook)
+app.use('/api/stripe/webhook', express.raw({ type: 'application/json' }))
+
+app.use(express.json({ limit: '10mb' }))
+
+// Healthcheck
+app.get('/health', (_req, res) => {
+  res.json({ service: 'ecora-backend', status: 'ok' })
+})
+
+// Rutas API del dominio
+app.use('/api/usuarios', usuariosRouter)
+app.use('/api/empresas', empresasRouter)
+app.use('/api/personas', personasRouter)
+app.use('/api/subproductos', subproductosRouter)
+app.use('/api/catalogo', catalogoRouter)
+app.use('/api/stripe', stripeRouter)
+app.use('/api/intercambios', intercambiosRouter)
+
+// Global Error Handler
+app.use(errorHandler)
+
+app.listen(env.PORT, () => {
+  console.log(`🚀 ecora-backend escuchando en puerto ${env.PORT}`)
+})
