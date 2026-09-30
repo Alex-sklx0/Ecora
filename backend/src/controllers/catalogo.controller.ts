@@ -11,7 +11,7 @@ export async function getCatalogo(
   try {
     const { q, familia, municipio, precio_min, precio_max, frecuencia } = req.query
 
-    const whereClauses: string[] = ['s.disponible = true']
+    const whereClauses: string[] = []
     const params: any[] = []
     let paramIndex = 1
 

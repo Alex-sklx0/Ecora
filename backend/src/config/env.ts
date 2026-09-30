@@ -2,9 +2,9 @@ import dotenv from 'dotenv'
 import path from 'path'
 import { z } from 'zod'
 
-// Cargar .env desde la raíz del proyecto o desde la carpeta actual
-dotenv.config({ path: path.resolve(process.cwd(), '.env') })
-dotenv.config({ path: path.resolve(process.cwd(), '../.env') })
+for (const file of ['.env', 'env', '../.env', '../env']) {
+  dotenv.config({ path: path.resolve(process.cwd(), file) })
+}
 
 const envSchema = z.object({
   PORT: z.coerce.number().default(8000),

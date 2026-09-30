@@ -32,7 +32,7 @@ export default function CatalogoDetalle() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
         <Navbar />
         <div style={{ textAlign: 'center', padding: '60px', color: '#6B7280' }}>Cargando...</div>
       </div>
@@ -41,7 +41,7 @@ export default function CatalogoDetalle() {
 
   if (error || !subproducto) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
         <Navbar />
         <div style={{ textAlign: 'center', padding: '60px', color: '#DC2626' }}>
           {error || 'El subproducto no existe.'}
@@ -53,7 +53,7 @@ export default function CatalogoDetalle() {
   const isOwner = empresa && Number(empresa.id) === Number(subproducto.id_empresa)
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
       <Navbar />
 
       <main style={{ maxWidth: '1000px', margin: '0 auto', padding: '32px 24px' }}>
@@ -192,13 +192,12 @@ export default function CatalogoDetalle() {
                 <button
                   onClick={() => navigate(`/chat/${subproducto.id}`)}
                   style={{
-                    width: '100%',
                     backgroundColor: '#22C55E',
                     color: '#FFFFFF',
                     border: 'none',
-                    padding: '12px',
+                    padding: '12px 20px',
                     borderRadius: '8px',
-                    fontWeight: 600,
+                    fontWeight: 700,
                     fontSize: '15px',
                     cursor: 'pointer',
                   }}

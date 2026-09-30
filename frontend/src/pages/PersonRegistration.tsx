@@ -57,7 +57,7 @@ export default function PersonRegistration() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: '#EAECEE',
+        backgroundColor: '#F3F6F4',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

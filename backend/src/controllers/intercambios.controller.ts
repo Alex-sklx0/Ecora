@@ -9,7 +9,7 @@ export async function getIntercambios(
 ) {
   try {
     const userId = req.user!.id
-    const { rol } = req.query
+    const { rol, estado } = req.query
 
     let whereClause = '(i.id_usuario_comprador = $1 OR i.id_usuario_vendedor = $1)'
     if (rol === 'comprador') {
@@ -17,17 +17,23 @@ export async function getIntercambios(
     } else if (rol === 'vendedor') {
       whereClause = 'i.id_usuario_vendedor = $1'
     }
+    if (estado === 'pagado') {
+      whereClause += ` AND i.estado_pago = 'pagado'`
+    }
 
     const query = `
       SELECT i.*,
              s.nombre AS subproducto_nombre,
              s.foto_url AS subproducto_foto_url,
              uc.name AS comprador_nombre,
-             uv.name AS vendedor_nombre
+             COALESCE(ev.nombre, uv.name) AS vendedor_nombre
       FROM intercambios i
       JOIN subproductos s ON i.id_subproducto = s.id
       JOIN "user" uc ON i.id_usuario_comprador = uc.id
       JOIN "user" uv ON i.id_usuario_vendedor = uv.id
+      LEFT JOIN LATERAL (
+        SELECT nombre FROM empresas WHERE id_usuario = i.id_usuario_vendedor ORDER BY id LIMIT 1
+      ) ev ON true
       WHERE ${whereClause}
       ORDER BY i.fecha_intercambio DESC
     `
@@ -44,6 +50,7 @@ export async function getIntercambios(
         fecha_intercambio: row.fecha_intercambio,
         precio_final: Number(row.precio_final),
         estado_pago: row.estado_pago,
+        direccion_entrega: row.direccion_entrega,
         stripe_session_id: row.stripe_session_id,
         stripe_payment_intent_id: row.stripe_payment_intent_id,
         subproducto: {
@@ -115,6 +122,7 @@ export async function getIntercambioById(
         fecha_intercambio: row.fecha_intercambio,
         precio_final: Number(row.precio_final),
         estado_pago: row.estado_pago,
+        direccion_entrega: row.direccion_entrega,
         stripe_session_id: row.stripe_session_id,
         stripe_payment_intent_id: row.stripe_payment_intent_id,
         subproducto: {

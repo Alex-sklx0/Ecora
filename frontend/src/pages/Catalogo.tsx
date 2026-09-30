@@ -15,7 +15,8 @@ export default function Catalogo() {
     try {
       let url = '/catalogo?'
       if (query) url += `q=${encodeURIComponent(query)}&`
-      if (tag !== 'Todos') url += `familia=${encodeURIComponent(tag)}&`
+      if (tag === 'Medellín') url += `municipio=${encodeURIComponent(tag)}&`
+      else if (tag !== 'Todos') url += `familia=${encodeURIComponent(tag)}&`
 
       const res = await api.get<{ ok: boolean; subproductos: Subproducto[] }>(url)
       if (res.ok) {
@@ -42,10 +43,10 @@ export default function Catalogo() {
     fetchCatalogo(search, tag)
   }
 
-  const tags = ['Todos', 'Textil', 'Plástico', 'Cartón', 'Madera', 'Vidrio']
+  const tags = ['Todos', 'Textil', 'Plástico', 'Cartón', 'Medellín']
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
       <Navbar />
 
       <main style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
@@ -101,7 +102,7 @@ export default function Catalogo() {
                 fontSize: '14px',
                 cursor: 'pointer',
                 backgroundColor: selectedTag === tag ? '#22C55E' : '#FFFFFF',
-                color: selectedTag === tag ? '#FFFFFF' : '#374151',
+                color: selectedTag === tag ? '#FFFFFF' : '#166534',
                 boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
               }}
             >
@@ -188,24 +189,24 @@ export default function Catalogo() {
                   ) : (
                     <span style={{ fontSize: '54px' }}>🧵</span>
                   )}
-                </div>
-
-                <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <span
                     style={{
-                      alignSelf: 'flex-start',
-                      backgroundColor: '#DCFCE7',
+                      position: 'absolute',
+                      left: '16px',
+                      bottom: '14px',
+                      backgroundColor: '#E7F6EC',
                       color: '#15803D',
                       fontSize: '12px',
                       fontWeight: 600,
                       padding: '4px 10px',
                       borderRadius: '12px',
-                      marginBottom: '10px',
                     }}
                   >
                     {item.familia_material || 'Textil'}
                   </span>
+                </div>
 
+                <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>
                     {item.nombre}
                   </h3>
@@ -222,10 +223,11 @@ export default function Catalogo() {
                     to={`/catalogo/${item.id}`}
                     style={{
                       marginTop: 'auto',
+                      alignSelf: 'flex-start',
                       backgroundColor: '#22C55E',
                       color: '#FFFFFF',
                       textAlign: 'center',
-                      padding: '10px',
+                      padding: '8px 16px',
                       borderRadius: '8px',
                       fontWeight: 600,
                       fontSize: '14px',

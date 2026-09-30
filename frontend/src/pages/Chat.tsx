@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import Navbar from '../components/layout/Navbar'
 import { api } from '../services/api'
 import { Subproducto } from '../types'
 
@@ -20,6 +19,7 @@ export default function Chat() {
   // Modales de flujo (14, 15, 16)
   const [step, setStep] = useState<'chat' | 'agreed' | 'logistics' | 'address'>('chat')
   const [direccionInput, setDireccionInput] = useState('')
+  const [cantidadInput, setCantidadInput] = useState('1')
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -45,20 +45,54 @@ export default function Chat() {
   }
 
   // Trigger para iniciar Stripe Checkout
-  const executeCheckout = async () => {
+  const stock = Number(subproducto?.volumen_disponible ?? 0)
+  const sinStock = !subproducto?.disponible || stock <= 0
+  const unidad = subproducto?.unidad_medida_abreviatura || 'kg'
+
+  const cantidadSeleccionada = () => {
+    const cantidad = Number(cantidadInput)
+    if (!Number.isFinite(cantidad) || cantidad <= 0 || cantidad > stock) return null
+    return cantidad
+  }
+
+  const executeCheckout = async (direccion?: string) => {
     if (!subproducto) return
     setCheckoutLoading(true)
     setError('')
     try {
+      if (sinStock) {
+        setError('Este material está sin stock.')
+        setCheckoutLoading(false)
+        return
+      }
+
+      const cantidad = cantidadSeleccionada()
+      if (!cantidad) {
+        setError('La cantidad no puede superar el stock disponible.')
+        setCheckoutLoading(false)
+        return
+      }
+
+      const total = Number(subproducto.precio_inicial) * cantidad
+      if (!Number.isFinite(total) || total <= 4000) {
+        setError('El monto debe ser mayor a 4000 COP para pagar con Stripe.')
+        setCheckoutLoading(false)
+        return
+      }
+
+      const direccionEntrega = direccion?.trim()
       const res = await api.post<{ ok: boolean; url: string }>('/stripe/checkout', {
         id_subproducto: subproducto.id,
-        precio_final: subproducto.precio_inicial || 327000,
+        cantidad,
+        ...(direccionEntrega ? { direccion_entrega: direccionEntrega } : {}),
       })
 
       if (res.ok && res.url) {
-        // Redirigir a la pasarela hospedada de Stripe (Wireframe 17)
         window.location.href = res.url
+        return
       }
+      setError('No se pudo abrir la pasarela de Stripe.')
+      setCheckoutLoading(false)
     } catch (err: any) {
       setError(err.message || 'Error al conectar con Stripe Checkout.')
       setCheckoutLoading(false)
@@ -76,29 +110,19 @@ export default function Chat() {
 
   const handleAddressSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (subproducto && direccionInput) {
-      try {
-        await api.patch(`/subproductos/${subproducto.id}`, { direccion: direccionInput })
-      } catch {
-        // Ignorar si no es el dueño
-      }
-    }
-    await executeCheckout()
+    await executeCheckout(direccionInput)
   }
 
   if (loading || !subproducto) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
-        <Navbar />
+      <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
         <div style={{ textAlign: 'center', padding: '60px', color: '#6B7280' }}>Cargando chat...</div>
       </div>
     )
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
-      <Navbar />
-
+    <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
       <main style={{ maxWidth: '900px', margin: '0 auto', padding: '32px 24px' }}>
         <Link
           to={`/catalogo/${id}`}
@@ -153,7 +177,7 @@ export default function Chat() {
                 key={idx}
                 style={{
                   alignSelf: m.sender === 'buyer' ? 'flex-end' : 'flex-start',
-                  backgroundColor: m.sender === 'buyer' ? '#047857' : '#F3F4F6',
+                  backgroundColor: m.sender === 'buyer' ? '#0F6E56' : '#F3F4F6',
                   color: m.sender === 'buyer' ? '#FFFFFF' : '#111827',
                   padding: '12px 18px',
                   borderRadius: '12px',
@@ -182,24 +206,59 @@ export default function Chat() {
                 <span style={{ fontSize: '13px', color: '#0369A1', fontWeight: 600 }}>
                   {subproducto.empresa_nombre || 'Fibretex'} te ha enviado una solicitud de intercambio:
                 </span>
-                <div style={{ display: 'flex', gap: '24px', marginTop: '8px' }}>
-                  <div>
-                    <span style={{ fontSize: '12px', color: '#64748B' }}>Cantidad:</span>
-                    <div style={{ fontWeight: 700, fontSize: '16px' }}>
-                      {subproducto.volumen_disponible} kg
+                <div style={{ display: 'flex', gap: '16px', marginTop: '12px' }}>
+                  <div style={styles.statBox}>
+                    <div style={{ fontSize: '12px', color: '#64748B' }}>Cantidad:</div>
+                    <input
+                      type="number"
+                      min="0"
+                      max={stock}
+                      step="any"
+                      value={cantidadInput}
+                      disabled={sinStock}
+                      onChange={(e) => setCantidadInput(e.target.value)}
+                      style={{
+                        width: '88px',
+                        marginTop: '4px',
+                        padding: '6px 8px',
+                        borderRadius: '6px',
+                        border: '1px solid #CBD5E1',
+                        fontWeight: 700,
+                      }}
+                    />
+                    <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+                      de {stock} {unidad}
                     </div>
                   </div>
-                  <div>
-                    <span style={{ fontSize: '12px', color: '#64748B' }}>Precio:</span>
-                    <div style={{ fontWeight: 700, fontSize: '16px' }}>
-                      ${subproducto.precio_inicial?.toLocaleString() || '327.000'} COP
+                  <div style={styles.statBox}>
+                    <div style={{ fontSize: '12px', color: '#64748B' }}>Precio:</div>
+                    <div style={{ fontWeight: 700 }}>
+                      {(Number(subproducto.precio_inicial || 0) * (cantidadSeleccionada() || 0)).toLocaleString('es-CO')} $
                     </div>
+                    <div style={{ fontSize: '12px', color: '#94A3B8' }}>Total</div>
                   </div>
                 </div>
               </div>
 
               <button
-                onClick={() => setStep('agreed')}
+                disabled={sinStock}
+                onClick={() => {
+                  if (sinStock) {
+                    setError('Este material está sin stock.')
+                    return
+                  }
+                  if (!cantidadSeleccionada()) {
+                    setError('La cantidad no puede superar el stock disponible.')
+                    return
+                  }
+                  const total = Number(subproducto.precio_inicial) * Number(cantidadInput)
+                  if (!Number.isFinite(total) || total <= 4000) {
+                    setError('El monto debe ser mayor a 4000 COP para pagar con Stripe.')
+                    return
+                  }
+                  setError('')
+                  setStep('agreed')
+                }}
                 style={{
                   backgroundColor: '#22C55E',
                   color: '#FFFFFF',
@@ -208,12 +267,16 @@ export default function Chat() {
                   borderRadius: '8px',
                   fontWeight: 700,
                   fontSize: '14px',
-                  cursor: 'pointer',
+                  cursor: sinStock ? 'not-allowed' : 'pointer',
+                  opacity: sinStock ? 0.6 : 1,
                 }}
               >
-                Confirmar intercambio
+                {sinStock ? 'Sin stock' : 'Confirmar intercambio'}
               </button>
             </div>
+            {error && step === 'chat' && (
+              <p style={{ color: '#B91C1C', fontSize: '13px', marginTop: '8px' }}>{error}</p>
+            )}
           </div>
 
           <form onSubmit={handleSendMessage} style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
@@ -230,6 +293,21 @@ export default function Chat() {
                 fontSize: '14px',
               }}
             />
+            <button
+              type="button"
+              onClick={() => setStep('agreed')}
+              style={{
+                backgroundColor: '#0F6E56',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+            >
+              Solicitud de intercambio
+            </button>
             <button
               type="submit"
               style={{
@@ -256,8 +334,20 @@ export default function Chat() {
                 Intercambio acordado
               </h3>
               <p style={{ color: '#6B7280', fontSize: '14px', marginBottom: '24px' }}>
-                El acuerdo entre {subproducto.empresa_nombre || 'Fibretex'} y tu empresa quedó registrado.
+                El acuerdo entre {subproducto.empresa_nombre || 'Fibretex'} y tu empresa quedó registrado
+                como demostración del prototipo.
               </p>
+
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginBottom: '20px' }}>
+                <div style={styles.statBox}>
+                  <div style={{ fontWeight: 700 }}>{cantidadInput} {unidad}</div>
+                  <div style={{ fontSize: '12px', color: '#6B7280' }}>Material</div>
+                </div>
+                <div style={styles.statBox}>
+                  <div style={{ fontWeight: 700 }}>94%</div>
+                  <div style={{ fontSize: '12px', color: '#6B7280' }}>Compatibilidad</div>
+                </div>
+              </div>
 
               <button
                 onClick={() => setStep('logistics')}
@@ -280,23 +370,27 @@ export default function Chat() {
                 ¿Quién va a gestionar el transporte de tus subproductos?
               </p>
 
-              <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: '28px', justifyContent: 'center', marginBottom: '8px' }}>
                 <div
-                  onClick={() => handleLogisticsChoice('self')}
-                  style={styles.optionCard}
+                  onClick={() => !checkoutLoading && handleLogisticsChoice('self')}
+                  style={{ ...styles.optionCard, opacity: checkoutLoading ? 0.6 : 1 }}
                 >
                   <div style={{ fontSize: '40px', marginBottom: '8px' }}>👤</div>
                   <div style={{ fontWeight: 700 }}>Yo mismo</div>
                 </div>
 
                 <div
-                  onClick={() => handleLogisticsChoice('ecora')}
-                  style={styles.optionCard}
+                  onClick={() => !checkoutLoading && handleLogisticsChoice('ecora')}
+                  style={{ ...styles.optionCard, opacity: checkoutLoading ? 0.6 : 1 }}
                 >
                   <div style={{ fontSize: '40px', marginBottom: '8px' }}>🚚</div>
                   <div style={{ fontWeight: 700 }}>Ecora se encarga</div>
                 </div>
               </div>
+              {checkoutLoading && (
+                <p style={{ marginTop: '16px', color: '#166534', fontWeight: 600 }}>Ir a Stripe...</p>
+              )}
+              {error && <p style={styles.panelError}>{error}</p>}
             </div>
           </div>
         )}
@@ -334,8 +428,9 @@ export default function Chat() {
                   disabled={checkoutLoading}
                   style={styles.primaryModalBtn}
                 >
-                  {checkoutLoading ? 'Ir a Stripe...' : 'Continuar al pago'}
+                  {checkoutLoading ? 'Ir a Stripe...' : 'Continuar'}
                 </button>
+                {error && <p style={styles.panelError}>{error}</p>}
               </form>
             </div>
           </div>
@@ -348,43 +443,56 @@ export default function Chat() {
 const styles: Record<string, React.CSSProperties> = {
   modalOverlay: {
     position: 'fixed',
-    top: 0,
+    top: 72,
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: '#F3F6F4',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1000,
+    zIndex: 50,
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
     borderRadius: '16px',
     padding: '36px',
-    maxWidth: '460px',
+    maxWidth: '520px',
     width: '90%',
     textAlign: 'center',
-    boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+    boxShadow: '0 10px 30px rgba(15, 23, 42, 0.08)',
   },
   primaryModalBtn: {
-    width: '100%',
     backgroundColor: '#22C55E',
     color: '#FFFFFF',
     border: 'none',
-    padding: '12px',
+    padding: '12px 28px',
     borderRadius: '8px',
     fontWeight: 700,
     fontSize: '15px',
     cursor: 'pointer',
   },
   optionCard: {
-    flex: 1,
-    padding: '24px 16px',
-    border: '2px solid #E5E7EB',
-    borderRadius: '12px',
+    width: '120px',
+    padding: '16px 12px',
+    borderRadius: '16px',
     cursor: 'pointer',
-    backgroundColor: '#F9FAFB',
-    transition: 'all 0.2s ease',
+    backgroundColor: '#F4F7FB',
+    boxShadow: '0 8px 18px rgba(15, 23, 42, 0.06)',
+  },
+  statBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: '12px',
+    padding: '10px 16px',
+    minWidth: '110px',
+    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+  },
+  panelError: {
+    marginTop: '16px',
+    backgroundColor: '#FEE2E2',
+    color: '#DC2626',
+    padding: '12px',
+    borderRadius: '8px',
+    fontSize: '14px',
   },
 }

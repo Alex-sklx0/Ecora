@@ -6,25 +6,26 @@ const slides = [
     title: 'Conecta tus subproductos a través de Ecora',
     description:
       'Ponte de acuerdo con otros para gestionar mejor el transporte de tus subproductos...',
-    icon: '📦',
+    image: '/circle-box.png',
   },
   {
     title: 'Mejoremos juntos la eficiencia del transporte',
     description:
-      'Genera certificados por tus ventas o compras concretadas y siéntete seguro de apoyar nuestra economía circular...',
-    icon: '🚚',
+      'Coordina entregas y reduce viajes vacíos entre empresas del Valle de Aburrá...',
+    image: '/shipper.png',
   },
   {
     title: 'Certificate y siéntete seguro con nosotros',
     description:
       'Genera certificados por tus ventas o compras concretadas y siéntete seguro de apoyar nuestra economía circular...',
-    icon: '📜',
+    image: '/certificate.png',
   },
 ]
 
 export default function Onboarding() {
   const [current, setCurrent] = useState(0)
   const navigate = useNavigate()
+  const slide = slides[current]
 
   const handleNext = () => {
     if (current < slides.length - 1) {
@@ -38,79 +39,53 @@ export default function Onboarding() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: '#EAECEE',
+        backgroundColor: '#F3F6F4',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
+        padding: '24px',
       }}
     >
-      <div
+      <button
+        type="button"
+        onClick={handleNext}
         style={{
           backgroundColor: '#FFFFFF',
-          borderRadius: '16px',
-          padding: '40px',
-          maxWidth: '600px',
+          border: 'none',
+          borderRadius: '18px',
+          padding: '36px 40px',
+          maxWidth: '760px',
           width: '100%',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          textAlign: 'center',
+          boxShadow: '0 10px 30px rgba(15, 23, 42, 0.06)',
+          textAlign: 'left',
+          cursor: 'pointer',
+          position: 'relative',
         }}
       >
-        <div style={{ fontSize: '72px', marginBottom: '24px' }}>{slides[current].icon}</div>
-        <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', marginBottom: '16px' }}>
-          {slides[current].title}
-        </h2>
-        <p style={{ fontSize: '15px', color: '#6B7280', lineHeight: 1.6, marginBottom: '32px' }}>
-          {slides[current].description}
-        </p>
-
-        {/* Indicadores de slide */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginBottom: '32px' }}>
-          {slides.map((_, i) => (
-            <div
-              key={i}
-              style={{
-                width: i === current ? '24px' : '8px',
-                height: '8px',
-                borderRadius: '4px',
-                backgroundColor: i === current ? '#22C55E' : '#D1D5DB',
-                transition: 'all 0.3s ease',
-              }}
-            />
-          ))}
+        <span
+          style={{
+            position: 'absolute',
+            top: '28px',
+            left: '28px',
+            width: '28px',
+            height: '22px',
+            borderTop: '3px solid #22C55E',
+            borderLeft: '3px solid #22C55E',
+            borderTopLeftRadius: '8px',
+          }}
+        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', paddingLeft: '16px' }}>
+          <div style={{ flex: 1 }}>
+            <h2 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '28px 0 16px' }}>
+              {slide.title}
+            </h2>
+            <p style={{ fontSize: '15px', color: '#4B5563', lineHeight: 1.6, maxWidth: '340px' }}>
+              {slide.description}
+            </p>
+          </div>
+          <img src={slide.image} alt="" width={140} height={140} style={{ objectFit: 'contain' }} />
         </div>
-
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-          <button
-            onClick={() => navigate('/pre-register')}
-            style={{
-              padding: '12px 24px',
-              borderRadius: '8px',
-              border: '1px solid #D1D5DB',
-              backgroundColor: '#FFFFFF',
-              color: '#374151',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            Saltar
-          </button>
-          <button
-            onClick={handleNext}
-            style={{
-              padding: '12px 32px',
-              borderRadius: '8px',
-              border: 'none',
-              backgroundColor: '#22C55E',
-              color: '#FFFFFF',
-              fontWeight: 600,
-              cursor: 'pointer',
-            }}
-          >
-            {current === slides.length - 1 ? 'Empezar' : 'Continuar'}
-          </button>
-        </div>
-      </div>
+      </button>
     </div>
   )
 }

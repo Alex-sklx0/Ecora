@@ -10,7 +10,7 @@ export default function Publicar() {
   const [idUnidad, setIdUnidad] = useState('1')   // 1: kg
   const [idFrecuencia, setIdFrecuencia] = useState('1') // 1: Una sola vez
   const [idMunicipio, setIdMunicipio] = useState('1')   // 1: Medellín
-  const [precioInicial, setPrecioInicial] = useState('1500')
+  const [precioInicial, setPrecioInicial] = useState('327000')
   const [descripcion, setDescripcion] = useState('')
   const [imageBase64, setImageBase64] = useState<string | undefined>(undefined)
   const [fileName, setFileName] = useState('')
@@ -65,7 +65,7 @@ export default function Publicar() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
       <Navbar />
 
       <main style={{ maxWidth: '640px', margin: '0 auto', padding: '32px 24px' }}>
@@ -203,12 +203,12 @@ export default function Publicar() {
             </div>
 
             <div>
-              <label style={styles.label}>Precio inicial por unidad ($ COP)</label>
+              <label style={styles.label}>Precio inicial ($ COP, mayor a 4000 para pagar)</label>
               <input
                 type="number"
                 required
                 min="0"
-                placeholder="Ej. 1500"
+                placeholder="Ej. 327000"
                 value={precioInicial}
                 onChange={(e) => setPrecioInicial(e.target.value)}
                 style={styles.input}

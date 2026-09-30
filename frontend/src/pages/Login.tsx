@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { authClient } from '../services/authClient'
 import { useAuth } from '../context/AuthContext'
+import Logo from '../components/Logo'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -40,7 +41,7 @@ export default function Login() {
     <div
       style={{
         minHeight: '100vh',
-        backgroundColor: '#EAECEE',
+        backgroundColor: '#F3F6F4',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -58,7 +59,7 @@ export default function Login() {
         }}
       >
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ fontSize: '28px', fontWeight: 700, color: '#22C55E' }}>Ecora</div>
+          <Logo wordmark size={36} />
           <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginTop: '8px' }}>
             Inicio de sesión
           </h2>

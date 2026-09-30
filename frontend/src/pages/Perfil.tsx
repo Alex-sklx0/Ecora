@@ -34,7 +34,7 @@ export default function Perfil() {
   const ciudad = 'Medellín'
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
       <Navbar />
 
       <main style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
@@ -46,7 +46,7 @@ export default function Perfil() {
         </p>
 
         {/* Dashboard Grid (Wireframe 20) */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '24px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(240px, 1fr) minmax(280px, 1.2fr) minmax(200px, 0.8fr)', gap: '24px', marginBottom: '24px' }}>
           {/* Card Perfil */}
           <div
             style={{
@@ -119,6 +119,32 @@ export default function Perfil() {
               <div style={{ fontSize: '13px', color: '#6B7280' }}>Material aprovechado</div>
             </div>
           </div>
+
+          <div
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '16px',
+              padding: '16px',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'space-around',
+              gap: '10px',
+              minHeight: '220px',
+            }}
+          >
+            {[40, 70, 55, 90, 120].map((height) => (
+              <div
+                key={height}
+                style={{
+                  width: '28px',
+                  height: `${height}px`,
+                  backgroundColor: '#22C55E',
+                  borderRadius: '6px 6px 0 0',
+                }}
+              />
+            ))}
+          </div>
         </div>
 
         {/* Tabla Mis publicaciones (Wireframe 20) */}
@@ -152,6 +178,7 @@ export default function Perfil() {
                     <th style={{ padding: '12px 8px' }}>Material</th>
                     <th style={{ padding: '12px 8px' }}>Cantidad</th>
                     <th style={{ padding: '12px 8px' }}>Estado</th>
+                    <th style={{ padding: '12px 8px' }}>Matches</th>
                     <th style={{ padding: '12px 8px', textAlign: 'right' }}>Acción</th>
                   </tr>
                 </thead>
@@ -178,14 +205,15 @@ export default function Perfil() {
                           {pub.disponible ? 'Activa' : 'Sin Stock'}
                         </span>
                       </td>
+                      <td style={{ padding: '14px 8px', color: '#4B5563' }}>—</td>
                       <td style={{ padding: '14px 8px', textAlign: 'right' }}>
                         <Link
                           to={`/subproductos/${pub.id}/editar`}
                           style={{
-                            backgroundColor: '#F3F4F6',
-                            color: '#374151',
+                            backgroundColor: '#E7F6EC',
+                            color: '#15803D',
                             padding: '6px 14px',
-                            borderRadius: '6px',
+                            borderRadius: '8px',
                             fontSize: '13px',
                             fontWeight: 600,
                             textDecoration: 'none',

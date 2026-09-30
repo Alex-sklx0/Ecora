@@ -1,30 +1,144 @@
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    @apply bg-surface-50 text-ink-900 font-sans;
+  }
+  :focus-visible {
+    outline: 2px solid theme("colors.clay.500");
+    outline-offset: 2px;
+  }
 }
 
-:root {
-  --green-primary: #22C55E;
-  --green-light: #DCFCE7;
-  --green-dark: #16A34A;
-  --bg-gray: #F3F4F6;
-  --text-dark: #111827;
-  --text-gray: #6B7280;
-  --white: #FFFFFF;
-  --border: #E5E7EB;
-  --radius: 12px;
-  --shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
+@layer components {
+  /* Estilos de los campos de formulario */
+  .field-label {
+    @apply block text-sm font-semibold text-ink-900 mb-1.5;
+  }
+  .field-input {
+    @apply w-full rounded-lg border border-surface-200 bg-white px-4 py-3 text-ink-900
+           placeholder:text-ink-300 transition-colors
+           focus:border-forest-600 focus:outline-none;
+  }
+  .field-input-error {
+    @apply border-signal-error;
+  }
+  .field-error {
+    @apply mt-1.5 flex items-center gap-1.5 text-sm text-signal-error;
+  }
+  .field-hint {
+    @apply mt-1 text-sm text-ink-500;
+  }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--bg-gray);
-  color: var(--text-dark);
-  min-height: 100vh;
-}
+  /* Estilos de los botones */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg bg-forest-700 px-6 py-3
+           text-white font-semibold transition-all hover:bg-forest-800
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border border-surface-200
+           bg-white px-6 py-3 text-ink-700 font-medium transition-colors hover:bg-surface-100;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 bg-transparent px-3 py-2
+           text-ink-500 font-medium transition-colors hover:text-ink-900;
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
+  /* Estilos de las tarjetas */
+  .card {
+    @apply rounded-2xl border border-surface-200 bg-white p-8;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 6px 24px rgba(0, 0, 0, 0.03);
+  }
+
+  /* Tarjeta de registro centrada */
+  .register-card {
+    @apply card mx-auto w-full;
+    max-width: 520px;
+  }
+
+  /* Linea de gradiente del encabezado */
+  .header-gradient-line {
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      theme("colors.forest.600") 0%,
+      theme("colors.clay.400") 100%
+    );
+  }
+
+  /* Pestañas para elegir persona o empresa */
+  .tab-group {
+    @apply flex rounded-lg border border-surface-200 bg-surface-50 p-1;
+  }
+  .tab-button {
+    @apply flex-1 flex items-center justify-center gap-2 rounded-md px-4 py-2.5
+           text-sm font-medium text-ink-500 transition-all cursor-pointer select-none;
+  }
+  .tab-button-active {
+    @apply bg-white text-ink-900 shadow-sm;
+  }
+
+  /* Estilos del indicador de pasos */
+  .stepper {
+    @apply flex items-center justify-center gap-0;
+  }
+  .stepper-step {
+    @apply flex flex-col items-center gap-1.5;
+  }
+  .stepper-circle {
+    @apply flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold
+           border-2 transition-colors;
+  }
+  .stepper-circle-active {
+    @apply border-forest-700 bg-forest-700 text-white;
+  }
+  .stepper-circle-pending {
+    @apply border-surface-200 bg-white text-ink-300;
+  }
+  .stepper-line {
+    @apply h-0.5 w-20 bg-surface-200 mx-2;
+  }
+  .stepper-line-completed {
+    @apply bg-forest-700;
+  }
+  .stepper-label {
+    @apply text-xs font-medium text-ink-500;
+  }
+  .stepper-label-active {
+    @apply text-ink-900;
+  }
+
+  /* Zona para subir fotos */
+  .dropzone {
+    @apply flex flex-col items-center justify-center rounded-xl border-2 border-dashed
+           border-surface-200 bg-surface-50/50 px-6 py-10 text-center transition-colors;
+  }
+  .dropzone:hover {
+    @apply border-forest-600/40 bg-surface-50;
+  }
+  .dropzone-active {
+    @apply border-forest-600 bg-forest-700/5;
+  }
+
+  /* Aviso informativo verde */
+  .info-banner {
+    @apply flex items-center gap-2 rounded-lg bg-forest-700/5 px-4 py-3 text-sm text-forest-800;
+  }
+
+  .banner {
+    border-radius: 6px 6px 30px 30px;
+    box-shadow: 0 14px 32px rgba(22, 33, 26, 0.18);
+  }
+
+  /* Insignia o etiqueta */
+  .badge {
+    @apply inline-flex items-center rounded-full border border-surface-200 bg-white
+           px-3 py-1 text-xs font-medium text-ink-700;
+  }
 }

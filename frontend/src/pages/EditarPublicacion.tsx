@@ -75,7 +75,7 @@ export default function EditarPublicacion() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
+      <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
         <Navbar />
         <div style={{ textAlign: 'center', padding: '60px', color: '#6B7280' }}>Cargando...</div>
       </div>
@@ -83,7 +83,7 @@ export default function EditarPublicacion() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
       <Navbar />
 
       <main style={{ maxWidth: '640px', margin: '0 auto', padding: '32px 24px' }}>

@@ -1,11 +1,8 @@
 import { Link } from 'react-router-dom'
-import Navbar from '../components/layout/Navbar'
 
 export default function PagoCancelado() {
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F3F4F6' }}>
-      <Navbar />
-
+    <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
       <main style={{ maxWidth: '540px', margin: '60px auto', padding: '0 24px' }}>
         <div
           style={{

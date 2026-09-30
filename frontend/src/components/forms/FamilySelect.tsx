@@ -1,0 +1,26 @@
+// Selector de familia de material
+
+import type { UseFormRegisterReturn } from "react-hook-form";
+import { Select } from "@/components/ui/Select";
+import { FAMILIAS_MATERIAL } from "@/lib/constants";
+
+type FamilySelectProps = {
+  registration: UseFormRegisterReturn;
+  hasError?: boolean;
+  id?: string;
+};
+
+export function FamilySelect({ registration, hasError, id = "id_familia" }: FamilySelectProps) {
+  return (
+    <Select id={id} hasError={hasError} defaultValue="" {...registration}>
+      <option value="" disabled>
+        Selecciona una opción
+      </option>
+      {FAMILIAS_MATERIAL.map((familia) => (
+        <option key={familia.id} value={familia.id}>
+          {familia.nombre}
+        </option>
+      ))}
+    </Select>
+  );
+}
