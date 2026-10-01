@@ -18,9 +18,20 @@ import chatRouter from './routes/chat.routes'
 
 const app = express()
 
+const allowedOrigins = env.FRONTEND_URL.split(',').map((o) => o.trim())
+
 app.use(
   cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true)
+      if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
+        return callback(null, true)
+      }
+      if (env.NODE_ENV === 'development' && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+        return callback(null, true)
+      }
+      return callback(null, false)
+    },
     credentials: true,
   })
 )

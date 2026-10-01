@@ -9,7 +9,7 @@ for (const file of ['.env', 'env', '../.env', '../env']) {
 const envSchema = z.object({
   PORT: z.coerce.number().default(8000),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  FRONTEND_URL: z.string().url().default('http://localhost:5173'),
+  FRONTEND_URL: z.string().default('http://localhost:5173'),
   SUPABASE_URL: z.string().url(),
   SUPABASE_SECRET_KEY: z.string().min(1),
   DATABASE_URL: z.string().min(1),

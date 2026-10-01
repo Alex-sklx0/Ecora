@@ -114,6 +114,10 @@ $RECYCLE.BIN/
 .idea/
 .zed/
 
+# ===== Despliegues / Cloud =====
+.vercel
+.railway
+
 # ===== Notas personales y archivos temporales =====
 *.tmp
 *.bak
@@ -122,3 +126,4 @@ $RECYCLE.BIN/
 scratch/
 notas/
 *.local
+
