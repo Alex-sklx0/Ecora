@@ -27,7 +27,11 @@ app.use(
       if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
         return callback(null, true)
       }
-      if (env.NODE_ENV === 'development' && (origin.includes('localhost') || origin.includes('127.0.0.1'))) {
+      // Permitir cualquier despliegue (preview o producción) de Vercel
+      if (origin.endsWith('.vercel.app')) {
+        return callback(null, true)
+      }
+      if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
         return callback(null, true)
       }
       return callback(null, false)
