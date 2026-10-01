@@ -211,8 +211,15 @@ export default function Catalogo() {
                     {item.nombre}
                   </h3>
 
-                  <div style={{ fontSize: '20px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>
-                    {item.volumen_disponible} {item.unidad_medida_abreviatura || 'kg'}
+                  <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '20px', fontWeight: 700, color: '#111827' }}>
+                      {item.volumen_disponible} {item.unidad_medida_abreviatura || 'kg'}
+                    </div>
+                    {item.precio_inicial !== undefined && (
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#15803D', whiteSpace: 'nowrap' }}>
+                        ${Number(item.precio_inicial).toLocaleString('es-CO')} / {item.unidad_medida_abreviatura || 'kg'}
+                      </span>
+                    )}
                   </div>
 
                   <p style={{ fontSize: '13px', color: '#6B7280', marginBottom: '20px' }}>

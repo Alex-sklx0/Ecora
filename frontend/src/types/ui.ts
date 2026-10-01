@@ -55,6 +55,7 @@ export type SubproductoCatalogo = {
   image_url?: string;
   destacado?: boolean;
   disponible?: boolean;
+  precio_inicial?: number;
   estado_publicacion?: "borrador" | "publicado";
   id_estado_publicacion?: number;
 };

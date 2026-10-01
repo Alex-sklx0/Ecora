@@ -14,6 +14,7 @@ import subproductosRouter from './routes/subproductos.routes'
 import catalogoRouter from './routes/catalogo.routes'
 import stripeRouter from './routes/stripe.routes'
 import intercambiosRouter from './routes/intercambios.routes'
+import chatRouter from './routes/chat.routes'
 
 const app = express()
 
@@ -47,9 +48,19 @@ app.use('/api/subproductos', subproductosRouter)
 app.use('/api/catalogo', catalogoRouter)
 app.use('/api/stripe', stripeRouter)
 app.use('/api/intercambios', intercambiosRouter)
+app.use('/api/conversaciones', chatRouter)
 
 // Global Error Handler
 app.use(errorHandler)
+
+// Evitar que excepciones no capturadas (ej. Better Auth schema validation) maten el proceso
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection (ignorado para mantener el proceso vivo):', reason)
+})
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception (ignorado para mantener el proceso vivo):', err)
+})
 
 app.listen(env.PORT, () => {
   console.log(`🚀 ecora-backend escuchando en puerto ${env.PORT}`)

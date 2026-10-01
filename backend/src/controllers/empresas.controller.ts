@@ -44,3 +44,26 @@ export async function createEmpresa(
     next(error)
   }
 }
+
+export async function getEmpresaById(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const id = Number(req.params.id)
+    if (isNaN(id)) return res.status(400).json({ ok: false, error: 'ID inválido' })
+
+    const result = await pool.query(
+      'SELECT id, id_usuario, nombre, nit, id_municipio, id_rol FROM empresas WHERE id = $1',
+      [id]
+    )
+    if (result.rows.length === 0) {
+      return res.status(404).json({ ok: false, error: 'Empresa no encontrada' })
+    }
+
+    return res.json({ ok: true, empresa: result.rows[0] })
+  } catch (error) {
+    next(error)
+  }
+}

@@ -67,6 +67,24 @@ export default function SubproductDetailPage() {
 
   const isDisponible = subproducto.disponible !== false && Number(subproducto.volumen_disponible) > 0;
 
+  let currentEmpresaId: string | undefined;
+  let currentUserId: string | undefined;
+  const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+  if (storedUser) {
+    try {
+      const u = JSON.parse(storedUser);
+      if (u.id_empresa) currentEmpresaId = String(u.id_empresa);
+      if (u.id) currentUserId = String(u.id);
+    } catch {
+      // Ignorar error de parseo
+    }
+  }
+
+  const isOwner = Boolean(
+    (currentEmpresaId && String(subproducto.id_empresa) === currentEmpresaId) ||
+    (currentUserId && String(subproducto.id_empresa) === currentUserId)
+  );
+
   return (
     <div className="mx-auto max-w-5xl pb-16">
       {/* Boton para volver al catalogo */}
@@ -158,14 +176,25 @@ export default function SubproductDetailPage() {
               Publicación de <span className="font-semibold text-ink-800">{subproducto.usuario || subproducto.empresa}</span>
             </p>
 
-            {/* Datos de cantidad disponible y ubicacion */}
-            <div className="mt-6 grid grid-cols-2 gap-4">
+            {/* Datos de cantidad disponible, precio y ubicacion */}
+            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="rounded-xl bg-[#f6f8f7] p-4 border border-surface-200">
                 <span className="block text-xl font-extrabold text-ink-900">
                   {subproducto.volumen_disponible.toLocaleString("es-CO")} {subproducto.unidad_volumen}
                 </span>
                 <span className="text-xs font-medium text-ink-500">
                   {isDisponible ? "Cantidad disponible" : "Lote habitual"}
+                </span>
+              </div>
+
+              <div className="rounded-xl bg-[#f6f8f7] p-4 border border-surface-200">
+                <span className="block text-xl font-extrabold text-forest-700">
+                  {subproducto.precio_inicial !== undefined
+                    ? `$${Number(subproducto.precio_inicial).toLocaleString("es-CO")}`
+                    : "A convenir"}
+                </span>
+                <span className="text-xs font-medium text-ink-500">
+                  Precio por {subproducto.unidad_volumen}
                 </span>
               </div>
 
@@ -188,16 +217,38 @@ export default function SubproductDetailPage() {
             </div>
 
           
-            {/* Boton para contactar a la empresa */}
+            {/* Boton para contactar a la empresa o gestionar si es publicacion propia */}
             <div className="mt-8 border-t border-surface-100 pt-6">
+              {isOwner ? (
+                <Link
+                  to={`/subproduct/${subproducto.id}/edit`}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-surface-100 px-6 py-3.5 text-base font-bold text-ink-700 transition-all hover:bg-surface-200 border border-surface-200 shadow-sm"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                  Editar mi publicación
+                </Link>
+              ) : (
                 <button
                   type="button"
                   disabled={!isDisponible}
-                  onClick={() => navigate(`/chat/${id}`)}
+                  onClick={() => navigate(`/chat?subproducto=${id}`)}
                   className={`inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3.5 text-base font-bold text-white shadow-sm transition-all active:scale-[0.99] ${
                     isDisponible
-                      ? "bg-[#23ce6b] "
-                      : "bg-amber-600 "
+                      ? "bg-[#23ce6b] hover:bg-[#1fb85f]"
+                      : "bg-amber-600 cursor-not-allowed opacity-80"
                   }`}
                 >
                   <svg
@@ -215,6 +266,7 @@ export default function SubproductDetailPage() {
                   </svg>
                   {isDisponible ? "Contactar empresa" : "No se puede contactar (sin stock)"}
                 </button>
+              )}
             </div>
           </div>
         </div>

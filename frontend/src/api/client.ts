@@ -26,6 +26,7 @@ type BackendSubproducto = {
   fecha_registro?: string;
   disponible: boolean;
   id_estado_publicacion?: number;
+  precio_inicial?: number | string;
 };
 
 const UNIDAD_POR_ID: Record<number, UnidadVolumen> = { 1: "kg", 2: "ton", 3: "m3" };
@@ -87,6 +88,10 @@ function mapSubproducto(item: BackendSubproductoWithEmpresa): SubproductoDetalle
     fecha_publicacion: item.fecha_registro,
     image_url: item.foto_url ?? undefined,
     emoji: '',
+    precio_inicial:
+      item.precio_inicial !== undefined && item.precio_inicial !== null
+        ? Number(item.precio_inicial)
+        : undefined,
   }
 }
 
@@ -344,11 +349,15 @@ export async function eliminarCuenta(): Promise<void> {
 export type IntercambioPagado = {
   id: number;
   id_subproducto: number;
+  id_usuario_comprador?: string;
+  id_usuario_vendedor?: string;
   fecha_intercambio: string;
   precio_final: number;
   direccion_entrega: string | null;
   subproducto: { id: number; nombre: string };
   vendedor: { id: string; nombre: string };
+  comprador?: { id: string; nombre: string };
+  contraparte?: { id: string; nombre: string };
 };
 
 export async function getIntercambiosPagados(): Promise<IntercambioPagado[]> {

@@ -249,7 +249,7 @@ export default function PostSubproductPage() {
               label="Dirección"
               htmlFor="direccion"
               error={errors.direccion?.message}
-              optional
+              required
             >
               <Input
                 id="direccion"

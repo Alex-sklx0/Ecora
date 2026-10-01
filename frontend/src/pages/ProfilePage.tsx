@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getMisPublicaciones, getCatalogo, eliminarSubproducto, eliminarCuenta, actualizarSubproducto, getIntercambiosPagados, type IntercambioPagado } from "@/api/client";
 import type { SubproductoCatalogo, SubproductoDetalle } from "@/types/ui";
+import { chatApi, type Conversacion } from "@/services/chatApi";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export default function ProfilePage() {
   const [togglingId, setTogglingId] = useState<string | null>(null);
   const [userData, setUserData] = useState<{ id?: number; email?: string; nombre?: string; id_empresa?: string | number } | null>(null);
   const [intercambios, setIntercambios] = useState<IntercambioPagado[]>([]);
+  const [conversaciones, setConversaciones] = useState<Conversacion[]>([]);
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -39,11 +41,12 @@ export default function ProfilePage() {
       ? getMisPublicaciones(companyId)
       : Promise.resolve([]);
 
-    Promise.all([pubsPromise, getCatalogo(), getIntercambiosPagados().catch(() => [])])
-      .then(([misPubs, cat, pagos]) => {
+    Promise.all([pubsPromise, getCatalogo(), getIntercambiosPagados().catch(() => []), chatApi.getConversaciones().catch(() => ({ conversaciones: [] }))])
+      .then(([misPubs, cat, pagos, chats]) => {
         setPublicaciones(misPubs);
         setCatalogo(cat);
         setIntercambios(pagos);
+        setConversaciones(chats.conversaciones);
       })
       .finally(() => setLoading(false));
   }, [navigate]);
@@ -216,7 +219,10 @@ export default function ProfilePage() {
 
       {/* Contenido segun el tipo de usuario: persona o empresa */}
       {userData && !userData.id_empresa ? (
-        <IntercambiosList intercambios={intercambios} loading={loading} />
+        <>
+          <IntercambiosList intercambios={intercambios} loading={loading} isEmpresa={false} />
+          <ChatsSection conversaciones={conversaciones} loading={loading} />
+        </>
       ) : (
         <>
         <section className="mt-4 rounded-xl bg-white p-5 shadow-sm ring-1 ring-surface-200">
@@ -318,7 +324,8 @@ export default function ProfilePage() {
           </div>
         )}
       </section>
-        <IntercambiosList intercambios={intercambios} loading={loading} />
+        <IntercambiosList intercambios={intercambios} loading={loading} isEmpresa={true} />
+        <ChatsSection conversaciones={conversaciones} loading={loading} />
         </>
       )}
 
@@ -330,9 +337,11 @@ export default function ProfilePage() {
 function IntercambiosList({
   intercambios,
   loading,
+  isEmpresa = false,
 }: {
   intercambios: IntercambioPagado[];
   loading: boolean;
+  isEmpresa?: boolean;
 }) {
   return (
     <section className="mt-4 rounded-xl bg-white p-5 shadow-sm ring-1 ring-surface-200">
@@ -347,7 +356,7 @@ function IntercambiosList({
             <thead className="border-b border-surface-200 text-ink-700">
               <tr>
                 <th className="px-3 py-2.5 font-bold">Material</th>
-                <th className="px-3 py-2.5 font-bold">Vendedor</th>
+                <th className="px-3 py-2.5 font-bold">{isEmpresa ? "Comprador" : "Vendedor"}</th>
                 <th className="px-3 py-2.5 font-bold">Valor</th>
                 <th className="px-3 py-2.5 font-bold">Fecha</th>
                 <th className="px-3 py-2.5 font-bold">Entrega</th>
@@ -364,7 +373,11 @@ function IntercambiosList({
                       {item.subproducto.nombre}
                     </Link>
                   </td>
-                  <td className="px-3 py-3">{item.vendedor.nombre}</td>
+                  <td className="px-3 py-3">
+                    {isEmpresa
+                      ? (item.comprador?.nombre || item.contraparte?.nombre || "—")
+                      : (item.vendedor?.nombre || "—")}
+                  </td>
                   <td className="px-3 py-3 font-semibold text-ink-900">
                     ${Number(item.precio_final).toLocaleString("es-CO")} COP
                   </td>
@@ -379,6 +392,77 @@ function IntercambiosList({
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function ChatsSection({
+  conversaciones,
+  loading,
+}: {
+  conversaciones: Conversacion[];
+  loading: boolean;
+}) {
+  const navigate = useNavigate();
+
+  return (
+    <section className="mt-4 rounded-xl bg-white p-5 shadow-sm ring-1 ring-surface-200">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-sm font-bold text-ink-900">Mis chats</h2>
+        <Link to="/chat" className="text-xs font-semibold text-[#00805b] hover:underline">
+          Ver todos
+        </Link>
+      </div>
+
+      {loading ? (
+        <p className="py-8 text-center text-sm text-ink-500">Cargando chats...</p>
+      ) : conversaciones.length === 0 ? (
+        <div className="py-10 text-center text-ink-400">
+          <div className="mb-2 text-4xl">💬</div>
+          <p className="text-sm font-medium">Aún no tienes conversaciones.</p>
+          <p className="mt-1 text-xs">Cuando alguien te contacte desde el catálogo, aparecerá aquí.</p>
+        </div>
+      ) : (
+        <div className="flex flex-col gap-1">
+          {conversaciones.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => navigate(`/chat/${c.id}`)}
+              className="flex items-center gap-3 rounded-lg px-3 py-3 text-left transition-colors hover:bg-surface-50"
+            >
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#dff4ed] font-bold text-[#00805b]">
+                {c.contraparte.nombre.charAt(0).toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-ink-900">{c.contraparte.nombre}</span>
+                  <span className="ml-2 shrink-0 text-[11px] text-ink-400">
+                    {new Date(c.ultimo_mensaje_at).toLocaleDateString("es-CO", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    })}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-0.5">
+                  <span className="truncate text-xs text-ink-500 max-w-xs">
+                    {c.ultimo_contenido
+                      ? c.ultimo_contenido.startsWith("{")
+                        ? "📦 Solicitud de intercambio"
+                        : c.ultimo_contenido
+                      : "Sin mensajes aún"}
+                  </span>
+                  {c.no_leidos > 0 && (
+                    <span className="ml-2 flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#22C55E] px-1 text-[11px] font-bold text-white">
+                      {c.no_leidos > 9 ? "9+" : c.no_leidos}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </button>
+          ))}
         </div>
       )}
     </section>

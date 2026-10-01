@@ -56,6 +56,7 @@ export interface Subproducto {
   id_frecuencia?: number
   frecuencia?: string
   empresa_nombre?: string
+  empresa_usuario_id?: string
 }
 
 export interface Intercambio {
@@ -85,3 +86,13 @@ export interface ApiResponse<T> {
   error?: string
   data?: T
 }
+
+export interface SolicitudIntercambioPayload {
+  tipo: 'solicitud_intercambio'
+  id_subproducto?: number
+  material?: string
+  cantidad: number
+  unidad?: string
+  precio: number
+}
+

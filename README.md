@@ -10,7 +10,8 @@ Plataforma web de economía circular B2B para la publicación, negociación e in
 - **Backend**: Express + TypeScript + Zod.
 - **Base de datos**: PostgreSQL hospedado en Supabase (`DATABASE_URL`).
 - **Autenticación**: Better-Auth (sesiones con cookies httpOnly).
-- **Almacenamiento de archivos**: Supabase Storage (bucket `Imagenes`).
+- **Chat en Vivo**: Supabase Realtime (canales de broadcast).
+- **Almacenamiento de archivos**: Supabase Storage (bucket `storage`).
 - **Pasarela de Pagos**: Stripe Checkout + Webhook en tiempo real.
 - **Orquestación local**: Docker Compose (services `frontend` y `backend`).
 
@@ -59,13 +60,9 @@ VITE_API_BASE_URL=http://localhost:8000/api
 
 ### 2. Migración SQL en Supabase
 
-Antes de iniciar la aplicación por primera vez, ejecuta el script SQL ubicado en `docs/migracion_fase3.sql` en el **SQL Editor** de la consola de Supabase.
-
-Este script creará:
-- Tabla `frecuencia_producto` (1: Una sola vez, 2: Diario, 3: Semanal, 4: Mensual).
-- Columnas `foto_url`, `disponible`, `id_frecuencia` en `subproductos`.
-- Columnas `stripe_customer_id` en `empresas`.
-- Columnas `stripe_session_id`, `stripe_payment_intent_id`, `estado_pago` en `intercambios`.
+Antes de iniciar la aplicación por primera vez, ejecuta los scripts SQL ubicados en la carpeta `docs/` en el **SQL Editor** de la consola de Supabase:
+- `docs/migracion_fase3.sql`: Estructura inicial, columnas de fotos, Better-Auth y Stripe.
+- `docs/migracion_chat.sql`: Tablas `conversaciones` y `mensajes` con índices optimizados y restricciones de integridad.
 
 ---
 

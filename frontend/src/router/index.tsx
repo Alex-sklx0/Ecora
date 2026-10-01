@@ -51,6 +51,7 @@ export const router = createBrowserRouter([
       { path: 'post-subproduct', element: guard(<PostSubproductPage />) },
       { path: 'publicar', element: <Navigate to="/post-subproduct" replace /> },
       { path: 'matching', element: guard(<MatchingPage />) },
+      { path: 'chat', element: guard(<Chat />) },
       { path: 'chat/:id', element: guard(<Chat />) },
       { path: 'pago/exito', element: guard(<PagoExito />) },
       { path: 'pago/cancelado', element: guard(<PagoCancelado />) },

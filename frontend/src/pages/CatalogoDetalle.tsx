@@ -8,7 +8,7 @@ import { Subproducto } from '../types'
 export default function CatalogoDetalle() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { empresa } = useAuth()
+  const { empresa, user } = useAuth()
 
   const [subproducto, setSubproducto] = useState<Subproducto | null>(null)
   const [loading, setLoading] = useState(true)
@@ -50,7 +50,10 @@ export default function CatalogoDetalle() {
     )
   }
 
-  const isOwner = empresa && Number(empresa.id) === Number(subproducto.id_empresa)
+  const isOwner = Boolean(
+    (empresa && Number(empresa.id) === Number(subproducto.id_empresa)) ||
+    (user && String(user.id) === String(subproducto.id_empresa))
+  )
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F3F6F4' }}>
@@ -152,6 +155,23 @@ export default function CatalogoDetalle() {
                   borderRadius: '10px',
                 }}
               >
+                <div style={{ fontSize: '18px', fontWeight: 700, color: '#15803D' }}>
+                  {subproducto.precio_inicial !== undefined
+                    ? `$${Number(subproducto.precio_inicial).toLocaleString('es-CO')}`
+                    : 'A convenir'}
+                </div>
+                <div style={{ fontSize: '12px', color: '#6B7280' }}>
+                  Precio / {subproducto.unidad_medida_abreviatura || 'kg'}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  backgroundColor: '#F3F4F6',
+                  padding: '12px 20px',
+                  borderRadius: '10px',
+                }}
+              >
                 <div style={{ fontSize: '18px', fontWeight: 700, color: '#111827' }}>
                   {subproducto.municipio || 'Medellín'}
                 </div>
@@ -190,7 +210,7 @@ export default function CatalogoDetalle() {
               ) : (
                 /* Wireframe 12: Vista Comprador -> Redirige al Chat (P2) */
                 <button
-                  onClick={() => navigate(`/chat/${subproducto.id}`)}
+                  onClick={() => navigate(`/chat?subproducto=${subproducto.id}`)}
                   style={{
                     backgroundColor: '#22C55E',
                     color: '#FFFFFF',

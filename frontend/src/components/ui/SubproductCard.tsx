@@ -60,13 +60,20 @@ export function SubproductCard({ subproducto }: SubproductCardProps) {
           {subproducto.nombre}
         </h3>
 
-        {/* Cantidad disponible */}
-        <p className="mt-1 text-xl font-extrabold text-ink-900">
-          {subproducto.volumen_disponible.toLocaleString("es-CO")}{" "}
-          <span className="text-sm font-medium text-ink-600">
-            {subproducto.unidad_volumen}
-          </span>
-        </p>
+        {/* Cantidad disponible y Precio por unidad */}
+        <div className="mt-1 flex items-baseline justify-between gap-2">
+          <p className="text-xl font-extrabold text-ink-900">
+            {subproducto.volumen_disponible.toLocaleString("es-CO")}{" "}
+            <span className="text-sm font-medium text-ink-600">
+              {subproducto.unidad_volumen}
+            </span>
+          </p>
+          {subproducto.precio_inicial !== undefined && (
+            <span className="text-sm font-bold text-forest-700 whitespace-nowrap">
+              ${Number(subproducto.precio_inicial).toLocaleString("es-CO")} / {subproducto.unidad_volumen}
+            </span>
+          )}
+        </div>
 
         {/* Empresa y municipio */}
         <p className="mt-1 text-xs text-ink-500">
