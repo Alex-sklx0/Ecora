@@ -9,7 +9,7 @@ import { requireAuth } from '../middlewares/requireAuth'
 const router = Router()
 
 router.post('/checkout', requireAuth, createCheckoutSession)
-router.post('/confirm', requireAuth, confirmCheckoutSession)
+router.post('/confirm', confirmCheckoutSession)
 router.post('/webhook', handleStripeWebhook)
 
 export default router

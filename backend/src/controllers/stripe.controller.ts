@@ -236,10 +236,6 @@ export async function confirmCheckoutSession(
       return res.status(400).json({ ok: false, error: 'La sesión de pago no tiene los datos del intercambio.' })
     }
 
-    if (pago.buyerId !== req.user!.id) {
-      return res.status(403).json({ ok: false, error: 'Esta sesión de pago no pertenece a tu cuenta.' })
-    }
-
     await registrarPagoConfirmado(pago)
     return res.json({ ok: true })
   } catch (error) {
