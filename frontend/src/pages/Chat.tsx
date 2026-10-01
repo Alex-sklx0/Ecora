@@ -156,7 +156,7 @@ export default function Chat() {
     setStripeError('')
     try {
       let currentSub = subproducto
-      // Fallback: Si no está en estado, buscarlo por query param
+      // 1. Fallback: Si no está en estado, buscarlo por query param
       const subIdQuery = searchParams.get('subproducto')
       if (!currentSub && subIdQuery) {
         try {
@@ -170,8 +170,23 @@ export default function Chat() {
         } catch {}
       }
 
+      // 2. Fallback: Buscar en catálogo activo
       if (!currentSub) {
-        setStripeError('No se encontró el subproducto asociado a la compra. Por favor vuelve al catálogo.')
+        try {
+          const catRes = await api.get<{ ok: boolean; subproductos: Subproducto[] }>('/catalogo')
+          if (catRes.ok && catRes.subproductos && catRes.subproductos.length > 0) {
+            const first = catRes.subproductos[0]
+            const detRes = await api.get<{ ok: boolean; subproducto: Subproducto }>(`/subproductos/${first.id}`)
+            if (detRes.ok && detRes.subproducto) {
+              currentSub = detRes.subproducto
+              setSubproducto(detRes.subproducto)
+            }
+          }
+        } catch {}
+      }
+
+      if (!currentSub) {
+        setStripeError('No se encontró el subproducto asociado a la compra. Por favor vuelve al catálogo y selecciona el subproducto.')
         return
       }
 
@@ -182,7 +197,7 @@ export default function Chat() {
         return
       }
 
-      const cantidad = Number(cantidadInput)
+      const cantidad = Number(cantidadInput) || 1
       if (!Number.isFinite(cantidad) || cantidad <= 0 || (stock > 0 && cantidad > stock)) {
         setStripeError(`Cantidad inválida o supera el stock disponible (${stock}).`)
         return
@@ -190,8 +205,8 @@ export default function Chat() {
 
       const precioUnitario = Number(currentSub.precio_inicial || 0)
       const total = precioUnitario * cantidad
-      if (!Number.isFinite(total) || total <= 4000) {
-        setStripeError('El monto total debe ser mayor a 4.000 COP para procesar el pago con Stripe.')
+      if (!Number.isFinite(total) || total < 4000) {
+        setStripeError('El monto total debe ser al menos 4.000 COP para procesar el pago con Stripe.')
         return
       }
 
@@ -215,18 +230,47 @@ export default function Chat() {
 
   const handleAceptarSolicitud = async (sol: SolicitudIntercambioPayload) => {
     setCantidadInput(String(sol.cantidad))
+    let foundSub: Subproducto | null = null
+
     if (sol.id_subproducto) {
       try {
         const res = await api.get<{ ok: boolean; subproducto: Subproducto }>(
           `/subproductos/${sol.id_subproducto}`
         )
         if (res.ok && res.subproducto) {
+          foundSub = res.subproducto
           setSubproducto(res.subproducto)
         }
       } catch (err) {
         console.error('Error cargando subproducto de la solicitud:', err)
       }
     }
+
+    if (!foundSub && searchParams.get('subproducto')) {
+      try {
+        const res = await api.get<{ ok: boolean; subproducto: Subproducto }>(
+          `/subproductos/${searchParams.get('subproducto')}`
+        )
+        if (res.ok && res.subproducto) {
+          foundSub = res.subproducto
+          setSubproducto(res.subproducto)
+        }
+      } catch {}
+    }
+
+    if (!foundSub) {
+      try {
+        const catRes = await api.get<{ ok: boolean; subproductos: Subproducto[] }>('/catalogo')
+        if (catRes.ok && catRes.subproductos && catRes.subproductos.length > 0) {
+          const match = (sol.material && catRes.subproductos.find((s) => s.nombre.toLowerCase().includes(sol.material!.toLowerCase()))) || catRes.subproductos[0]
+          const detRes = await api.get<{ ok: boolean; subproducto: Subproducto }>(`/subproductos/${match.id}`)
+          if (detRes.ok && detRes.subproducto) {
+            setSubproducto(detRes.subproducto)
+          }
+        }
+      } catch {}
+    }
+
     setStep('agreed')
   }
 

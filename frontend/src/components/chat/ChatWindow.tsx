@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, FormEvent } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useChat } from '../../hooks/useChat'
 import MessageBubble from './MessageBubble'
 import type { Subproducto, SolicitudIntercambioPayload } from '../../types'
@@ -22,6 +23,7 @@ export default function ChatWindow({
   children,
 }: Props) {
   const { mensajes, loading, error, enviando, enviar } = useChat(conversacionId)
+  const [searchParams] = useSearchParams()
   const [input, setInput] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
 
@@ -95,11 +97,14 @@ export default function ChatWindow({
       return
     }
 
+    const paramId = searchParams.get('subproducto') ? Number(searchParams.get('subproducto')) : undefined
+    const subId = subproducto?.id || paramId
+
     setSolicitudError('')
 
     const payload: SolicitudIntercambioPayload = {
       tipo: 'solicitud_intercambio',
-      id_subproducto: subproducto?.id,
+      id_subproducto: subId,
       material: subproducto?.nombre || 'Material',
       cantidad: cant,
       unidad: subproducto?.unidad_medida_abreviatura || 'kg',

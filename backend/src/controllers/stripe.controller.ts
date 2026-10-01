@@ -53,10 +53,10 @@ export async function createCheckoutSession(
     }
 
     const precioFinal = Number(subproducto.precio_inicial) * body.cantidad
-    if (!(precioFinal > MIN_CHECKOUT_COP)) {
+    if (precioFinal < MIN_CHECKOUT_COP) {
       return res.status(400).json({
         ok: false,
-        error: 'El monto debe ser mayor a 4000 COP.',
+        error: 'El monto total debe ser de al menos 4.000 COP para procesar el pago.',
       })
     }
 
