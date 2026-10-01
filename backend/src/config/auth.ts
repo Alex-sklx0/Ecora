@@ -34,4 +34,12 @@ export const auth = betterAuth({
       maxAge: 5 * 60, // 5 minutos
     },
   },
+  advanced: {
+    useSecureCookies: env.NODE_ENV === 'production' || env.BETTER_AUTH_URL.startsWith('https://'),
+    defaultCookieAttributes: {
+      sameSite: (env.NODE_ENV === 'production' || env.BETTER_AUTH_URL.startsWith('https://')) ? 'none' : 'lax',
+      secure: env.NODE_ENV === 'production' || env.BETTER_AUTH_URL.startsWith('https://'),
+      httpOnly: true,
+    },
+  },
 })
