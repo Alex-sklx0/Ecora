@@ -91,6 +91,7 @@ export default function PostSubproductPage() {
         id_familia: values.id_familia,
         volumen_disponible: values.volumen_disponible,
         unidad_volumen: values.unidad_volumen as UnidadVolumen,
+        precio_inicial: values.precio_inicial,
         municipio: values.municipio,
         direccion: values.direccion,
         image_url: imageUrl,
@@ -212,11 +213,29 @@ export default function PostSubproductPage() {
               </FormField>
             </div>
 
-            {/* Frecuencia y ubicacion */}
+            {/* Precio inicial y Frecuencia */}
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              <FormField
+                label="Precio unitario ($ COP / unidad)"
+                htmlFor="precio_inicial"
+                error={errors.precio_inicial?.message}
+                hint="Precio sugerido por unidad (kg, ton, m³)."
+                optional
+              >
+                <Input
+                  id="precio_inicial"
+                  type="number"
+                  step="any"
+                  min="0"
+                  placeholder="Ej. 5500"
+                  hasError={!!errors.precio_inicial}
+                  {...register("precio_inicial")}
+                />
+              </FormField>
+
               <div>
                 <label className="field-label" htmlFor="frecuencia">
-                  Frecuencia
+                  Frecuencia de generación
                 </label>
                 <select
                   id="frecuencia"
@@ -231,7 +250,10 @@ export default function PostSubproductPage() {
                   ))}
                 </select>
               </div>
+            </div>
 
+            {/* Ubicación y Dirección */}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <FormField
                 label="Ubicación"
                 htmlFor="municipio"
@@ -243,21 +265,21 @@ export default function PostSubproductPage() {
                   hasError={!!errors.municipio}
                 />
               </FormField>
-            </div>
 
-            <FormField
-              label="Dirección"
-              htmlFor="direccion"
-              error={errors.direccion?.message}
-              required
-            >
-              <Input
-                id="direccion"
-                placeholder="Ej. Cra 1 # 2-3, bodega 4"
-                hasError={!!errors.direccion}
-                {...register("direccion")}
-              />
-            </FormField>
+              <FormField
+                label="Dirección"
+                htmlFor="direccion"
+                error={errors.direccion?.message}
+                required
+              >
+                <Input
+                  id="direccion"
+                  placeholder="Ej. Cra 1 # 2-3, bodega 4"
+                  hasError={!!errors.direccion}
+                  {...register("direccion")}
+                />
+              </FormField>
+            </div>
 
             {/* Familia del material */}
             <FormField

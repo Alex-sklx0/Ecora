@@ -96,6 +96,10 @@ export const subproductoSchema = z.object({
     .number({ invalid_type_error: "Ingresa un valor numérico." })
     .positive("El volumen debe ser mayor a cero."),
   unidad_volumen: z.string().min(1, "Selecciona una unidad."),
+  precio_inicial: z.coerce
+    .number({ invalid_type_error: "Ingresa un valor numérico válido para el precio." })
+    .min(0, "El precio no puede ser negativo.")
+    .optional(),
   municipio: z.string().min(1, "Selecciona un municipio."),
   direccion: z
     .string()

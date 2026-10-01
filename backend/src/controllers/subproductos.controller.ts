@@ -13,7 +13,7 @@ const createSubproductoSchema = z.object({
   id_unidad_medida: z.union([z.number(), z.string()]).default(1),
   id_municipio: z.union([z.number(), z.string()]).default(1),
   direccion: z.string().trim().max(200).optional(),
-  precio_inicial: z.coerce.number().min(0, 'El precio no puede ser negativo'),
+  precio_inicial: z.coerce.number().min(0, 'El precio no puede ser negativo').default(0),
   id_frecuencia: z.union([z.number(), z.string()]).optional(),
   image_base64: z.string().optional(),
 })

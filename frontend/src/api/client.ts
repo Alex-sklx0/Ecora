@@ -233,6 +233,7 @@ export async function registrarSubproducto(
     municipio: string;
     direccion?: string;
     image_url?: string;
+    precio_inicial?: number;
   }
 ): Promise<SubproductoDetalle> {
   const unidad = UNIDADES_VOLUMEN.find((option) => option.value === input.unidad_volumen);
@@ -247,6 +248,7 @@ export async function registrarSubproducto(
     id_municipio: municipioId(input.municipio),
     direccion: input.direccion?.trim() || undefined,
     image_base64: input.image_url,
+    precio_inicial: input.precio_inicial !== undefined ? Number(input.precio_inicial) : 0,
   });
   return mapSubproducto(unwrap(response, "subproducto"));
 }
